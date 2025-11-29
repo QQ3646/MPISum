@@ -1,4 +1,4 @@
 #!/bin/bash
 
 module load mpi
-mpiexec -n 8 python main.py
+mpiexec -n $1 python main.py
