@@ -5,7 +5,7 @@ import sys
 
 PROCESS_COUNTS = [1, 2, 4, 8]
 CPP_DIR = "./cpp"
-PY_DIR = "./python"
+PY_DIR = "./py"
 
 CPP_CMD = ["./run.sh"]
 PY_CMD = ["./run.sh"]
@@ -22,7 +22,6 @@ def run_and_parse(command, cwd, args):
         )
         output = res.stdout
 
-        # Простой поиск по ключевым словам "Sum:" и "Time:"
         sum_val = re.search(r"Финальная сумма массива: ([0-9.eE+]+)", output)
         time_val = re.search(r"Время выполнения: ([0-9.eE+]+) секунд", output)
 
@@ -36,11 +35,6 @@ def run_and_parse(command, cwd, args):
 
 
 def main():
-    if not os.path.isdir(CPP_DIR) or not os.path.isdir(PY_DIR):
-        print("Ошибка: проверьте директории ./cpp и ./python")
-        sys.exit(1)
-
-    # Шапка таблицы
     print(f"{'Proc':<5} | {'Lang':<5} | {'Sum Result':<20} | {'Time (sec)':<15}")
     print("-" * 55)
 
