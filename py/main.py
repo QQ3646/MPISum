@@ -1,17 +1,12 @@
 # Распределенное суммирование массива с использованием MPI
 
 from mpi4py import MPI
-from numpy import arange, empty, int32, float64, sum
-from time import time
+from numpy import arange, empty, int32, float64
 
 def main():
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     numprocs = comm.Get_size()
-
-    # Синхронизация перед началом замера
-    comm.Barrier()
-    start_time = time()
 
     # Параметры массива
     if rank == 0:
@@ -45,6 +40,10 @@ def main():
     comm.Scatter(rcounts, local_count, root=0)
     M_part = local_count[0]
 
+    # Синхронизация перед началом замера
+    comm.Barrier()
+    start_time = MPI.Wtime()
+
     local_a = empty(M_part, dtype=float64)
     comm.Scatterv([a, rcounts, displs, MPI.DOUBLE], local_a, root=0)
 
@@ -74,7 +73,7 @@ def main():
 
     # Замер времени окончания
     comm.Barrier()
-    end_time = time()
+    end_time = MPI.Wtime()
     total_time = end_time - start_time
 
     # Сбор времени выполнения на процессе 0
