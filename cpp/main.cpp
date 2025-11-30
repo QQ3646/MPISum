@@ -16,10 +16,14 @@ int main(int argc, char** argv) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
 
-    const int M = 100;
+    const long long M = 10000000;
+
     std::vector<double> a;
     std::vector<int> rcounts;
     std::vector<int> displs;
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    double start_time = MPI_Wtime();
 
     if (rank == 0) {
         a.resize(M);
@@ -42,6 +46,8 @@ int main(int argc, char** argv) {
                 displs[k] = displs[k - 1] + rcounts[k - 1];
             }
         }
+
+        DLOG << "Распределение рассчитано." << std::endl;
     }
 
     int local_count = 0;
@@ -82,8 +88,12 @@ int main(int argc, char** argv) {
         step *= 2;
     }
 
+    MPI_Barrier(MPI_COMM_WORLD);
+    double end_time = MPI_Wtime();
+
     if (rank == 0) {
         std::cout << "Финальная сумма массива: " << local_sum << std::endl;
+        std::cout << "Время выполнения: " << (end_time - start_time) << " секунд" << std::endl;
     }
 
     MPI_Finalize();
