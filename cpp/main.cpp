@@ -92,9 +92,20 @@ int main(int argc, char** argv) {
     MPI_Barrier(MPI_COMM_WORLD);
     double end_time = MPI_Wtime();
 
+    std::vector<double> all_times;
+    if (rank == root_rank) {
+        all_times.resize(numprocs);
+    }
+
+    MPI_Gather(&local_duration, 1, MPI_DOUBLE,
+               rank == root_rank ? all_times.data() : nullptr, 1, MPI_DOUBLE,
+               root_rank, MPI_COMM_WORLD);
+
     if (rank == 0) {
+        double max_duration = *std::max_element(all_times.begin(), all_times.end());
+
         std::cout << "Финальная сумма массива: " << local_sum << std::endl;
-        std::cout << "Время выполнения: " << (end_time - start_time) << " секунд" << std::endl;
+        std::cout << "Время выполнения: " << max_duration << " секунд" << std::endl;
     }
 
     MPI_Finalize();
