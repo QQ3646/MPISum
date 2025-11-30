@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <vector>
 #include <numeric>
@@ -93,13 +94,13 @@ int main(int argc, char** argv) {
     double end_time = MPI_Wtime();
 
     std::vector<double> all_times;
-    if (rank == root_rank) {
+    if (rank == 0) {
         all_times.resize(numprocs);
     }
 
-    MPI_Gather(&local_duration, 1, MPI_DOUBLE,
-               rank == root_rank ? all_times.data() : nullptr, 1, MPI_DOUBLE,
-               root_rank, MPI_COMM_WORLD);
+    MPI_Gather(&end_time, 1, MPI_DOUBLE,
+               rank == 0 ? all_times.data() : nullptr, 1, MPI_DOUBLE,
+               0, MPI_COMM_WORLD);
 
     if (rank == 0) {
         double max_duration = *std::max_element(all_times.begin(), all_times.end());
