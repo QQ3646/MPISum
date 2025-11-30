@@ -22,9 +22,6 @@ int main(int argc, char** argv) {
     std::vector<int> rcounts;
     std::vector<int> displs;
 
-    MPI_Barrier(MPI_COMM_WORLD);
-    double start_time = MPI_Wtime();
-
     if (rank == 0) {
         a.resize(M);
         std::iota(a.begin(), a.end(), 1.0);
@@ -63,6 +60,10 @@ int main(int argc, char** argv) {
                  MPI_DOUBLE,
                  local_a.data(), local_count, MPI_DOUBLE,
                  0, MPI_COMM_WORLD);
+
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    double start_time = MPI_Wtime();
 
     double local_sum = std::accumulate(local_a.begin(), local_a.end(), 0.0);
 

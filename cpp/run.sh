@@ -3,13 +3,13 @@
 EXECUTABLE_NAME="mpiSum"
 DEFAULT_PROCS=4
 
-BUILD_TYPE="Debug"
+BUILD_TYPE="Release"
 NUM_PROCS=$DEFAULT_PROCS
 
 for arg in "$@"
 do
-    if [ "$arg" == "--release" ]; then
-        BUILD_TYPE="Release"
+    if [ "$arg" == "--debug" ]; then
+        BUILD_TYPE="Debug"
     elif [[ "$arg" =~ ^[0-9]+$ ]]; then
         NUM_PROCS="$arg"
     fi
@@ -29,7 +29,7 @@ cmake --build . --parallel
 
 if [ $? -eq 0 ]; then
     if [ -f "./$EXECUTABLE_NAME" ]; then
-        mpirun -np "$NUM_PROCS" "./$EXECUTABLE_NAME"
+        mpirun -n "$NUM_PROCS" "./$EXECUTABLE_NAME"
     else
         exit 1
     fi
