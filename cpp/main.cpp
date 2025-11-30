@@ -16,7 +16,8 @@ int main(int argc, char** argv) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
 
-    const int M = 100;
+    const long long M = 10000000;
+
     std::vector<double> a;
     std::vector<int> rcounts;
     std::vector<int> displs;
@@ -42,6 +43,8 @@ int main(int argc, char** argv) {
                 displs[k] = displs[k - 1] + rcounts[k - 1];
             }
         }
+
+        DLOG << "Распределение рассчитано." << std::endl;
     }
 
     int local_count = 0;
@@ -57,6 +60,10 @@ int main(int argc, char** argv) {
                  MPI_DOUBLE,
                  local_a.data(), local_count, MPI_DOUBLE,
                  0, MPI_COMM_WORLD);
+
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    double start_time = MPI_Wtime();
 
     double local_sum = std::accumulate(local_a.begin(), local_a.end(), 0.0);
 
@@ -82,8 +89,23 @@ int main(int argc, char** argv) {
         step *= 2;
     }
 
+    MPI_Barrier(MPI_COMM_WORLD);
+    double end_time = MPI_Wtime();
+
+    std::vector<double> all_times;
+    if (rank == root_rank) {
+        all_times.resize(numprocs);
+    }
+
+    MPI_Gather(&local_duration, 1, MPI_DOUBLE,
+               rank == root_rank ? all_times.data() : nullptr, 1, MPI_DOUBLE,
+               root_rank, MPI_COMM_WORLD);
+
     if (rank == 0) {
+        double max_duration = *std::max_element(all_times.begin(), all_times.end());
+
         std::cout << "Финальная сумма массива: " << local_sum << std::endl;
+        std::cout << "Время выполнения: " << max_duration << " секунд" << std::endl;
     }
 
     MPI_Finalize();
